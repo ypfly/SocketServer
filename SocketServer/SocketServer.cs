@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -144,12 +145,23 @@ namespace SocketServer
                     dict.Remove(sokClient.RemoteEndPoint.ToString());
                     break;
                 }
-                if (arrMsgRec[0] == 0)  // 表示接收到的是数据；  
+
+                MyMessage mmsg = new MyMessage();
+                mmsg = JsonHelper.DeserializeJsonToObject<MyMessage>(Encoding.UTF8.GetString(arrMsgRec));
+
+                // 将接受到的数据存入到输入  arrMsgRec中；  
+                if (mmsg == null)
                 {
-                    string strMsg = System.Text.Encoding.UTF8.GetString(arrMsgRec, 1, length - 1);// 将接受到的字节数据转化成字符串；  
-                    string sip = sokClient.RemoteEndPoint.ToString();
-                    md.DoShowMSGFunc(sender, sip.Substring(0, sip.IndexOf(":")) + ":" + strMsg);
+                    md.DoShowMSGFunc(sender, "异常：没有获取到数据");
+                    return;
                 }
+
+                if (mmsg.id == "0") // 表示接收到的是消息数据；  
+                {
+                    string sip = sokClient.RemoteEndPoint.ToString();
+                    md.DoShowMSGFunc(sender, sip.Substring(0, sip.IndexOf(":")) + ":" + mmsg.msg);
+                }
+               
                 //if (arrMsgRec[0] == 1) // 表示接收到的是文件；  
                 //{
                 //    SaveFileDialog sfd = new SaveFileDialog();
@@ -172,12 +184,10 @@ namespace SocketServer
         // 发送消息  
         public void btnSend(object sender, string ip, MyMessage Mmsg)
         {
-            string strMsg = "服务器  -->" + Mmsg.msg ;
-          
-                
-            byte[] arrMsg= ByteConvertHelper.SerializeObject(Mmsg); 
-           
-        
+            string strMsg = "服务器  -->" + Mmsg.msg ;          
+             
+            byte[] arrMsg = Encoding.UTF8.GetBytes(JsonHelper.ToJson(Mmsg));
+
             string strKey = "";
             for (int i = 0; i < dictip.Count; i++)
             {

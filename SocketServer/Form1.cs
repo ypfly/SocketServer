@@ -19,7 +19,7 @@ namespace SocketServer
         SocketServer sockerS = new SocketServer();
         private void Form1_Load(object sender, EventArgs e)
         {
-            sockerS.ListenClient(new object[] { richTextBox_Show, comboBox1 }, "10.6.103.40", "9950");         
+            sockerS.ListenClient(new object[] { richTextBox_Show, comboBox1 }, "10.6.103.183", "9950");         
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
